@@ -1,0 +1,10 @@
+﻿#default deflection,,,,,
+Can I text you a question?,I didn't understand,,,,
+,,,,,
+#regular appointment,,,,,
+Can someone support me at home?,,ask_for_contact,false,,
+Can I text you a question?,Contact me via email,ask_for_contact,true,appointment_request,true
+,,,,,
+#gold member appointment,goldMember,true,,,
+Can someone support me at home?,,ask_for_contact,false,,
+Can I text you a question?,we'll call you!
