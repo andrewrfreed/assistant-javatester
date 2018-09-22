@@ -13,33 +13,13 @@ import com.ibm.watson.developer_cloud.assistant_tester.orchestrator_sample.Orche
 
 public class ExampleTest_Orchestrator {
 	
-	/** 
-	 * Has the orchestrator called the order cancellation function yet? 
-	 * We set this in a test double.  Alternatively you could use a mocking framework to detect that a function was called.
-	 */
-	private boolean orderCancelled = false;
-	Orchestrator orchestrator = null;
+	private Orchestrator orchestrator = null;
+	private OrderManagementTestDouble testDouble = null;
 	
 	@Before
 	public void setup() {
-		orderCancelled = false;
-		
-		/*
-		 * Set up a test double for simple verification of the orchestrator.
-		 * Alternatively, use a system like Mockito which provides greater function and less verbosity.
-		 */
-		orchestrator = new Orchestrator(new IOrderManagement() {
-			@Override
-			public String getLastOrder(String memberId) {
-				return "456";
-			}
-			
-			@Override
-			public void cancelOrder(String orderId) {
-				System.out.println("Cancelling order #" + orderId);
-				orderCancelled = true;
-			}
-		});
+		testDouble = new OrderManagementTestDouble();
+		orchestrator = new Orchestrator(testDouble);
 	}
 	
 	@Test
@@ -59,13 +39,36 @@ public class ExampleTest_Orchestrator {
 	   assertContext(orchestrator.getContext(), "memberId", memberId);
 	   assertContext(orchestrator.getContext(), "orderId", "456");
 	   assertContains(resp2, "Cancel");
-	   assertFalse(orderCancelled);
+	   assertFalse(testDouble.isOrderCancelled());
 
 	   //Conversation turn 3
 	   //response = "I cancelled order number 456."      
 	   String resp3 = orchestrator.onInput(utterance2);
-	   assertTrue(orderCancelled);
+	   assertTrue(testDouble.isOrderCancelled());
 	   assertContains(resp3, "cancelled");
 	}
 
+	/*
+	 * Set up a test double for simple verification of the orchestrator.
+	 * Alternatively, use a system like Mockito which provides greater function and less verbosity.
+	 */
+	class OrderManagementTestDouble implements IOrderManagement {
+		private boolean orderCancelled = false;
+		
+		@Override
+		public String getLastOrder(String memberId) {
+			return "456";
+		}
+		
+		@Override
+		public void cancelOrder(String orderId) {
+			System.out.println("Cancelling order #" + orderId);
+			orderCancelled = true;
+		}
+		
+		public boolean isOrderCancelled() {
+			return orderCancelled;
+		}
+	}
+	
 }
