@@ -11,7 +11,11 @@ public class Assert {
 	}
 	
 	public static void assertContains(String message, String response, String searchText) {
-		assertTrue(message, response.contains(searchText));
+		boolean result = searchText.contains(searchText);
+		if(!result) {
+			System.out.println(response);
+		}
+		assertTrue(message, result);
 	}
 	
 	public static void assertContains(MessageResponse response, String searchText) {
@@ -20,7 +24,11 @@ public class Assert {
 	
 	public static void assertContains(String message, MessageResponse response, String searchText) {
 		String outputText = String.join(", ", response.getOutput().getText());
-		assertTrue(message, outputText.contains(searchText));
+		boolean result = outputText.contains(searchText);
+		if(!result) {
+			System.out.println(response);
+		}
+		assertTrue(message, result);
 	}
 	
 	public static void assertContext(MessageResponse response, String key, String value) {
@@ -29,7 +37,15 @@ public class Assert {
 	
 	public static void assertContext(String message, MessageResponse response, String key, String value) {
 		Object variableFromContext = response.getContext().get(key);
-		assertTrue(message + " " + key + " does not exist in response", variableFromContext != null);
+		boolean varPresent = variableFromContext != null;
+		if(!varPresent) {
+			System.out.println(response);
+		}
+		assertTrue(message + " " + key + " does not exist in response", varPresent);
+		boolean varEquals = (value != null) && (value.equals(variableFromContext.toString()));
+		if(!varEquals) {
+			System.out.println(response);
+		}
 		assertEquals(message, value, variableFromContext.toString());
 	}
 	
@@ -39,7 +55,15 @@ public class Assert {
 	
 	public static void assertContext(String message, Context context, String key, String value) {
 		Object variableFromContext = context.get(key);
-		assertTrue(message + " " + key + " does not exist in response", variableFromContext != null);
+		boolean varPresent = variableFromContext != null;
+		if(!varPresent) {
+			System.out.println(context);
+		}
+		assertTrue(message + " " + key + " does not exist in context", varPresent);
+		boolean varEquals = (value != null) && (value.equals(variableFromContext.toString()));
+		if(!varEquals) {
+			System.out.println(context);
+		}
 		assertEquals(message, value, variableFromContext.toString());
 	}
 }
