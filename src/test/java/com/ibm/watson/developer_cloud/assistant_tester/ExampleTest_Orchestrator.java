@@ -55,12 +55,10 @@ public class ExampleTest_Orchestrator {
 	class OrderManagementTestDouble implements IOrderManagement {
 		private boolean orderCancelled = false;
 		
-		@Override
 		public String getLastOrder(String memberId) {
 			return "456";
 		}
 		
-		@Override
 		public void cancelOrder(String orderId) {
 			System.out.println("Cancelling order #" + orderId);
 			orderCancelled = true;

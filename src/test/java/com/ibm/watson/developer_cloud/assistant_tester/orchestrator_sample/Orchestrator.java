@@ -1,8 +1,10 @@
 package com.ibm.watson.developer_cloud.assistant_tester.orchestrator_sample;
 
-import com.ibm.watson.developer_cloud.assistant.v1.Assistant;
-import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
+import com.ibm.cloud.sdk.core.security.Authenticator;
+import com.ibm.cloud.sdk.core.security.IamAuthenticator;
+import com.ibm.watson.assistant.v1.Assistant;
+import com.ibm.watson.assistant.v1.model.Context;
+import com.ibm.watson.assistant.v1.model.MessageResponse;
 import com.ibm.watson.developer_cloud.assistant_tester.Conversation;
 
 /**
@@ -13,10 +15,10 @@ import com.ibm.watson.developer_cloud.assistant_tester.Conversation;
  */
 public class Orchestrator {
 	
-	private static String USERNAME = System.getProperty("ASSISTANT_USERNAME");
-	private static String PASSWORD = System.getProperty("ASSISTANT_PASSWORD");
-	private static String VERSION = "2018-02-16";
+	private static String APIKEY = System.getProperty("ASSISTANT_APIKEY");
+	private static String VERSION = System.getProperty("ASSISTANT_VERSION", "2019-02-28");
 	private static String WORKSPACE_ID = System.getProperty("WORKSPACE_ID");
+	private static String URL = System.getProperty("ASSISTANT_URL", "https://gateway-wdc.watsonplatform.net/assistant/api");
     
 	/** Context key: Should user input be sent to Watson or handled internally in the orchestrator? */
 	private static final String GO_TO_WATSON_KEY = "goToWatson";
@@ -28,8 +30,8 @@ public class Orchestrator {
 	private static final String ORDER_ID_KEY = "orderId";
 	
     static {
-    	if(USERNAME == null || PASSWORD == null || WORKSPACE_ID == null) {
-    		System.err.println("Required environment variables are ASSISTANT_USERNAME, ASSISTANT_PASSWORD, and WORKSPACE_ID");
+    	if(APIKEY == null || WORKSPACE_ID == null) {
+    		System.err.println("Required environment variables are ASSISTANT_APIKEY, and WORKSPACE_ID");
     		System.exit(-1);
     	}
     }
@@ -43,8 +45,9 @@ public class Orchestrator {
      * @param orderService
      */
 	public Orchestrator(IOrderManagement orderService) {
-		Assistant service = new Assistant(VERSION);
-	    service.setUsernameAndPassword(USERNAME, PASSWORD);
+		Authenticator authenticator = new IamAuthenticator(APIKEY);
+		Assistant service = new Assistant(VERSION, authenticator);
+	    service.setServiceUrl(URL);
 	    conversation = new Conversation(service, WORKSPACE_ID);
 	    
 	    conversation.getContext().put(GO_TO_WATSON_KEY, "true");
@@ -65,7 +68,7 @@ public class Orchestrator {
 		String memberId = (String) conversation.getContext().get(MEMBER_ID_KEY);
 		if(goToWatson) {
 			MessageResponse lastResponse = conversation.turn(input);
-			lastIntent = lastResponse.getIntents().get(0).getIntent();
+			lastIntent = lastResponse.getIntents().get(0).intent();
 			toSend = String.join("\n", lastResponse.getOutput().getText());
 		}
 		switch(lastIntent) {

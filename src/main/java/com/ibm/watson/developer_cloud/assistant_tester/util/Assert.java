@@ -1,7 +1,7 @@
 package com.ibm.watson.developer_cloud.assistant_tester.util;
 
-import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
+import com.ibm.watson.assistant.v1.model.Context;
+import com.ibm.watson.assistant.v1.model.MessageResponse;
 import static org.junit.Assert.*;
 
 public class Assert {

@@ -8,31 +8,34 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.ibm.watson.developer_cloud.assistant.v1.Assistant;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
+import com.ibm.cloud.sdk.core.security.Authenticator;
+import com.ibm.cloud.sdk.core.security.IamAuthenticator;
+import com.ibm.watson.assistant.v1.Assistant;
+import com.ibm.watson.assistant.v1.model.MessageResponse;
 
 public class ExampleTest_Code {
 
 	private Conversation conversation = null;
 	
-	private static String USERNAME = System.getProperty("ASSISTANT_USERNAME");
-	private static String PASSWORD = System.getProperty("ASSISTANT_PASSWORD");
-	private static String VERSION = "2018-02-16";
+	private static String APIKEY = System.getProperty("ASSISTANT_APIKEY");
+	private static String VERSION = System.getProperty("ASSISTANT_VERSION", "2019-02-28");
 	private static String WORKSPACE_ID = System.getProperty("WORKSPACE_ID");
+	private static String URL = System.getProperty("ASSISTANT_URL", "https://gateway-wdc.watsonplatform.net/assistant/api");
 	
     @BeforeClass
     public static void checkEnvironment() {
-    	if(USERNAME == null || PASSWORD == null || WORKSPACE_ID == null) {
-    		System.err.println("Required environment variables are ASSISTANT_USERNAME, ASSISTANT_PASSWORD, and WORKSPACE_ID");
+    	if(APIKEY == null || WORKSPACE_ID == null) {
+    		System.err.println("Required environment variables are ASSISTANT_APIKEY, and WORKSPACE_ID");
     		System.exit(-1);
     	}
     }
 	
 	@Before
 	public void setup() {
-	    Assistant service = new Assistant(VERSION);
-	    service.setUsernameAndPassword(USERNAME, PASSWORD);
-
+		Authenticator authenticator = new IamAuthenticator(APIKEY);
+		Assistant service = new Assistant(VERSION, authenticator);
+	    service.setServiceUrl(URL);
+	    
 	    conversation = new Conversation(service, WORKSPACE_ID);
 	}
 	

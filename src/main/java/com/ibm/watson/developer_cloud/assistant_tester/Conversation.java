@@ -1,10 +1,11 @@
 package com.ibm.watson.developer_cloud.assistant_tester;
 
-import com.ibm.watson.developer_cloud.assistant.v1.Assistant;
-import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
-import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
+import com.ibm.cloud.sdk.core.http.Response;
+import com.ibm.watson.assistant.v1.Assistant;
+import com.ibm.watson.assistant.v1.model.Context;
+import com.ibm.watson.assistant.v1.model.MessageInput;
+import com.ibm.watson.assistant.v1.model.MessageOptions;
+import com.ibm.watson.assistant.v1.model.MessageResponse;
 
 /**
  * Wrapper for having conversations with a Watson Assistant instance
@@ -32,14 +33,17 @@ public class Conversation {
 	 * @return Full response from Watson Assistant
 	 */
 	public MessageResponse turn(String utterance) {
-	    InputData input = new InputData.Builder(utterance).build();
+		MessageInput input = new MessageInput();
+		input.setText(utterance);
+	    
 	    MessageOptions options = new MessageOptions.Builder(workspaceId)
 	        .input(input)
 	        .context(context)
 	        .build();
 
 	    // synchronous request
-	    MessageResponse response = service.message(options).execute();	
+	    Response<MessageResponse> rawResponse = service.message(options).execute();	
+	    MessageResponse response = rawResponse.getResult();
 	    context = response.getContext();
 	    return response;
 	}
